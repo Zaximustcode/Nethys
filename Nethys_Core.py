@@ -74,7 +74,7 @@ async def on_message(message):
         client.get_emoji
         await message.channel.send(session.sessionVote(msg))
     #Takes [!r | !roll] <#>d<Sides> +/- # +/- # ... -> Outputs rolls and total
-    if message.content.startswith('!r'):
+    if message.content.startswith('!r '):
         msg = message.content
         if msg.find("!roll ") >= 0:
             msg = msg.replace("!roll ", '')

@@ -118,7 +118,7 @@ def sessionLogInput(msg):
     try:
         file = open("nethys_sessionlist.dat", 'r+')
     except FileNotFoundError:
-        file = open("nethy_sessionlist.dat", 'w')
+        file = open("nethys_sessionlist.dat", 'w')
         file.close
         file = open("nethys_sessionlist.dat", 'r+')
     file.read()
@@ -159,13 +159,12 @@ def sessionRemove(msg):
         pos = file.tell()
         line = file.readline()
         if line.find(str(msg + ',')) >= 0:
-            file.seek(pos)
-            file.readline()
             recreate = file.read()
             print(recreate)
             file.seek(pos)
             file.truncate(pos)
             file.write(recreate)
+            file.seek(pos)
             break
         elif eof == pos:
             return str(msg + " not found in my Archives to remove. Don't waste my time, mortal.")
@@ -207,7 +206,10 @@ def sessionListCleanup():
         if line.find('AM') >= 0:
             hour = int(hour)
         elif line.find('PM') >= 0:
-            hour = int(hour) + 12
+            if int(hour) == 12:
+                hour = 12
+            else:
+                hour = int(hour) + 12
         print('hour: ', hour)
         print('min: ', minutes)
         print(contents[3])
@@ -265,7 +267,7 @@ def sessionQuery(msg):
     print(data)
     try:
         data[4] = data[4].replace('\n', '')
-        reply = ':small_orange_diamond: **'+data[0]+'** '+"is scheduled for "+data[4]+'@ '+data[1]+' '+data[2]+' '+data[3]
+        reply = ':small_blue_diamond: **'+data[0]+'** '+"is scheduled for "+data[4]+'@ '+data[1]+' '+data[2]+' '+data[3]
         print(reply)
         return reply
     except IndexError:
@@ -282,9 +284,13 @@ def sessionQueryAll():
         for s in sessions:
             edited = s.replace("orange", "blue")
             prettify = prettify + edited + '\n'
-        return prettify
+        if len(prettify) == 0:
+            return "No session found in the list."
+        else:
+            return prettify
     except FileNotFoundError:
         return "No session list was found. Use !session to create a session"
+
 def session(msg):
     integrityCheck = sessionInputIntegrityCheck(msg)
     if integrityCheck.find("Error: ") >= 0:
@@ -293,7 +299,7 @@ def session(msg):
         sessionLogInput(integrityCheck)
         msg = msg.split(' ')
         return sessionQuery(msg[0])
-        
+
 def sessionVote(msg):
     msg = split(' ')
     sessionID = msg[0]
