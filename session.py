@@ -1,4 +1,5 @@
-import datetime
+from datetime import datetime, timedelta
+import pytz
 
 def sessionInputIntegrityCheck(msg):
     components = msg.split(' ')
@@ -173,7 +174,12 @@ def sessionRemove(msg):
     return str(msg + " was removed successfully.")
   
 def sessionListCleanup():
-    now = datetime.datetime.now(tz=tz.UTC)
+    now = pytz.utc.localize(datetime.utcnow())
+    utc = pytz.utc
+    eastern = pytz.timezone('US/Eastern')
+    pacific = pytz.timezone('US/Pacific')
+    central = pytz.timezone('US/Central')
+    mountain = pytz.timezone('US/Central')
     print(now)
     file = open("nethys_sessionlist.dat", 'r+')
     file.read()
@@ -184,6 +190,7 @@ def sessionListCleanup():
         line = file.readline()
         line = line.replace('[', '')
         line = line.replace(']', '')
+        line = line.replace('\n', '')
         print('line: ',line)
         contents = line.split(',')
         print('contents: ',contents)
@@ -203,20 +210,17 @@ def sessionListCleanup():
             hour = int(hour) + 12
         print('hour: ', hour)
         print('min: ', minutes)
-        if contents[3] == 'CST':
-            hour += 5
-        elif contents[3] == 'PST':
-            hour += 7
-        elif contents[3] == 'MST':
-            hour += 7
-        elif contents[3] == 'EST':
-            hour += 4
-        elif contents[3] == 'MDT':
-            hour += 6
-        if hour > 23:
-            hour = hour - 23
-            day += 1
-        time = datetime.datetime(2020, month, day, hour, minutes, 0, 0, tzinfo=tz.UTC)
+        print(contents[3])
+        if contents[3] == 'CST' or contents[3] == 'CT' or contents[3] == 'CDT':
+            time = central.localize(datetime(now.year, month, day, hour, minutes, 0, 0))
+        elif contents[3] == 'PST' or contents[3] == 'PT' or contents[3] == 'PDT':
+            time = pacific.localize(datetime(now.year, month, day, hour, minutes, 0, 0))
+        elif contents[3] == 'MST' or contents[3] == 'MT' or contents[3] == 'MDT':
+            time = mountain.localize(datetime(now.year, month, day, hour, minutes, 0, 0))
+        elif contents[3] == 'EST' or contents[3] == 'ET' or contents[3] == 'EDT':
+            time = eastern.localize(datetime(now.year, month, day, hour, minutes, 0, 0))
+        else:
+            time = None
         print(time)
         if time < now:
             print('DO WORK')
