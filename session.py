@@ -258,16 +258,20 @@ def sessionReadData(msg):
             file.close()
             return "No session by the name exists."
 
-def sessionQuery(msg):
+def sessionQuery(msg, x):
     #sessionID 0, time 1, AM/PM 2, TZ 3, month/day 4
     data = sessionReadData(msg)
     data = data.replace('[', '')
     data = data.replace(']', ' ')
     data = data.split(",")
     print(data)
+    if x == 0:
+        emoji = ":small_orange_diamond:"
+    elif x == 1:
+        emoji = ":small_blue_diamond:"
     try:
         data[4] = data[4].replace('\n', '')
-        reply = ':small_blue_diamond: **'+data[0]+'** '+"is scheduled for "+data[4]+'@ '+data[1]+' '+data[2]+' '+data[3]
+        reply = emoji+ ' **'+data[0]+'** '+"is scheduled for "+data[4]+'@ '+data[1]+' '+data[2]+' '+data[3]
         print(reply)
         return reply
     except IndexError:
@@ -279,7 +283,7 @@ def sessionQueryAll():
         for line in open("nethys_sessionlist.dat", 'r'):
             sessionID = line.split(',')
             msg = sessionID[0].replace('[', '')
-            sessions.append(sessionQuery(msg))
+            sessions.append(sessionQuery(msg, 0))
         prettify = ''
         for s in sessions:
             edited = s.replace("orange", "blue")
@@ -298,7 +302,7 @@ def session(msg):
     else:
         sessionLogInput(integrityCheck)
         msg = msg.split(' ')
-        return sessionQuery(msg[0])
+        return sessionQuery(msg[0], 0)
 
 def sessionVote(msg):
     msg = split(' ')

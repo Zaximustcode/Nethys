@@ -31,17 +31,20 @@ async def on_message(message):
     if message.author == client.user:
         pins = await message.channel.pins()
         if message.content.startswith(":small_orange_diamond:"):
-            for p in pins:
-                print('\nPins: ',p.id)
-                print('Content: ',p.content)
-                if p.content.startswith(":small_orange_diamond:"):
-                    pin = p.content
-                    pin = pin.split(' ')
-                    msg = message.content
-                    msg = msg.split(' ')
-                    if msg[1] == pin[1]:
-                        await p.unpin()
-                    await message.pin()
+            if len(pins) > 0:
+                for p in pins:
+                    print('\nPins: ',p.id)
+                    print('Content: ',p.content)
+                    if p.content.startswith(":small_orange_diamond:"):
+                        pin = p.content
+                        pin = pin.split(' ')
+                        msg = message.content
+                        msg = msg.split(' ')
+                        if msg[1] == pin[1]:
+                            await p.unpin()
+                        await message.pin()
+            else:
+                await message.pin()
         return
     #Takes [!session] <SessionID> <Time> <AM/PM> <Timezone> <Month/Day> -> Logs a session with these arguments. \n [!session] <SessionID> status -> Outputs the  status of a session if it exists. \n [?session] <SessionID> -> Outputs the status of a session if it exists.
     if message.content.startswith('!session'):
@@ -49,14 +52,14 @@ async def on_message(message):
         msg = msg.replace("!session ", '')
         if msg.find("status") >= 0:
             msg = msg.replace(" status", '')
-            await message.channel.send(session.sessionQuery(msg))
+            await message.channel.send(session.sessionQuery(msg, 1))
         else:
             await message.channel.send(session.session(msg))
     #Takes [?session] -> Outputs that session if it exists 
     if message.content.startswith('?session'):
         msg = message.content
         msg = msg.replace("?session ", '')
-        await message.channel.send(session.sessionQuery(msg))
+        await message.channel.send(session.sessionQuery(msg, 1))
     #Takes [!cleanup] -> Removes all expired sessions from the database (WIP)
     if message.content.startswith('!cleanup'):
         await message.channel.send(session.sessionListCleanup())
