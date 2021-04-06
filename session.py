@@ -305,7 +305,15 @@ def session(msg):
         return sessionQuery(msg[0], 0)
 
 def sessionVote(msg):
-    msg = split(' ')
-    sessionID = msg[0]
-    
-    return ":scroll:"
+    options = []
+    try:
+        msg = msg.split(',')
+        for m in msg:
+            option = m.strip()
+            options.append(option)
+    except AttributeError:
+        options = msg
+    reply = f":scroll: Click a reaction to cast your vote. There are {len(options)} options. :scroll:\n"
+    for opt in options:
+        reply += f"> {opt}\n"
+    return reply
